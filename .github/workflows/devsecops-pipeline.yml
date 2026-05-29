@@ -46,26 +46,11 @@ jobs:
           path: sbom.json
 
       # ── Vulnerability scan with Grype ─────────────────────────────────────────
-      - name: Scan SBOM with Grype (table — console output)
-        uses: anchore/grype-action@v0.10.0      
+      - name: Scan SBOM with Grype
+        uses: anchore/scan-action@v5
         with:
-          path: sbom.json                     
+          sbom: sbom.json                  
           fail-build: true
           severity-cutoff: medium
           output-format: table
           only-fixed: false
-
-      # # Upload findings to GitHub Security tab (requires SARIF format)
-      # - name: Scan SBOM with Grype (SARIF — Security tab)
-      #   uses: anchore/grype-action@v0.10.0
-      #   with:
-      #     path: sbom.json
-      #     fail-build: false                      # let the upload step handle failure
-      #     severity-cutoff: medium
-      #     output-format: sarif
-      #     output-file: grype-results.sarif
-
-      # - name: Upload Grype SARIF to GitHub Security
-      #   uses: github/codeql-action/upload-sarif@v3
-      #   with:
-      #     sarif_file: grype-results.sarif
