@@ -8,4 +8,8 @@ res.send(`<h1>Hello, ${name}!</h1>`);
 });
 app.listen(port, () => {
 console.log(`🚀 App listening on http://localhost:${port}`);
+console.log('Try accessing: http://localhost:3000/?name=<script>alert("XSS")</script>');
+
 });
+
+
