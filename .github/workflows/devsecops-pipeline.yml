@@ -11,7 +11,7 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: read
-      security-events: write 
+      security-events: write
       packages: write
 
     steps:
@@ -26,29 +26,46 @@ jobs:
       - name: Install dependencies
         run: npm install
 
-      # SAST Analysis with CodeQL
-      - name: Initialize CodeQL 
-        uses: github/codeql-action/init@v4
+      # ── SAST: CodeQL ──────────────────────────────────────────────────────────
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@v3       # v3, not v4
         with:
           languages: javascript
 
       - name: Run CodeQL Analysis
-        uses: github/codeql-action/analyze@v4
-      
-      # Generate SBOM for node_modules
+        uses: github/codeql-action/analyze@v3    # v3, not v4
+
+      # ── SBOM generation ───────────────────────────────────────────────────────
       - name: Generate SBOM with CycloneDX
         run: npm sbom --sbom-format cyclonedx > sbom.json
-      
+
       - name: Upload SBOM as artifact
         uses: actions/upload-artifact@v4
         with:
           name: sbom
           path: sbom.json
-      
-      - name: scan SBOM with Grype
-        uses: anchore/grype-action@v3
+
+      # ── Vulnerability scan with Grype ─────────────────────────────────────────
+      - name: Scan SBOM with Grype (table — console output)
+        uses: anchore/grype-action@v0.10.0      
         with:
-          sbom: sbom.json
+          path: sbom.json                     
+          fail-build: true
           severity-cutoff: medium
           output-format: table
           only-fixed: false
+
+      # # Upload findings to GitHub Security tab (requires SARIF format)
+      # - name: Scan SBOM with Grype (SARIF — Security tab)
+      #   uses: anchore/grype-action@v0.10.0
+      #   with:
+      #     path: sbom.json
+      #     fail-build: false                      # let the upload step handle failure
+      #     severity-cutoff: medium
+      #     output-format: sarif
+      #     output-file: grype-results.sarif
+
+      # - name: Upload Grype SARIF to GitHub Security
+      #   uses: github/codeql-action/upload-sarif@v3
+      #   with:
+      #     sarif_file: grype-results.sarif
