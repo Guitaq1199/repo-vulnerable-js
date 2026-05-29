@@ -1,0 +1,36 @@
+name: DevSecOps Pipeline - SAST + Docker Security
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  pipeline:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      secuirty-events: write
+      packages: write
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '20'
+      
+      - name: Install dependencies
+        run: npm install
+      
+      # SAST Analysis with CodeQL
+      - name: Initialize Analysis
+        uses: github/codeql-action/analyze@v3
+        with:
+          languages: javascript
+      
+      - name: Run CodeQL Analysis
+        uses: github/codeql-action/analyze@v3
+      
