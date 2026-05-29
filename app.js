@@ -3,7 +3,9 @@ const app = express();
 const port = 3000;
 app.get('/', (req, res) => {
 const name = req.query.name || 'World';
-// ❌ Vulnerable a XSS Reflejado
+
+const apikey = 'sk-proj-aBcDeFgHiJkLmNoPqRsTuVwXyZ1234567890abcdef';
+
 res.send(`<h1>Hello, ${name}!</h1>`);
 });
 app.listen(port, () => {
