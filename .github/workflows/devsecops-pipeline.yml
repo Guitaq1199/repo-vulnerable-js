@@ -34,3 +34,21 @@ jobs:
 
       - name: Run CodeQL Analysis
         uses: github/codeql-action/analyze@v4
+      
+      # Generate SBOM for node_modules
+      - name: Generate SBOM with CycloneDX
+        run: npm sbom --sbom-format cyclonedx > sbom.json
+      
+      - name: Upload SBOM as artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: sbom
+          path: sbom.json
+      
+      - name: scan SBOM with Grype
+        uses: anchore/grype-action@v3
+        with:
+          sbom: sbom.json
+          severity-cutoff: medium
+          output-format: table
+          only-fixed: false
